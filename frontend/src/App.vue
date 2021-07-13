@@ -1,20 +1,40 @@
 <template>
   <div>
-    <p v-if="error">{{ error }}</p>
-    <table v-else>
-      <thead>
-        <th>Date</th>
-        <th>Outcome</th>
-        <th>Location</th>
-      </thead>
-      <tbody>
-        <tr v-for="alarm in alarms" :key="alarm.timestamp">
-          <td>{{ alarm.timestamp }}</td>
-          <td>{{ alarm.outcome }}</td>
-          <td>{{ alarm.location.name }}</td>
-        </tr>
-      </tbody>
-    </table>
+    <p v-if="loadingState.error">{{ loadingState.error }}</p>
+    <p v-else-if="loadingState.isLoading">Loading Alarms...</p>
+    <div v-else>
+      <table>
+        <thead>
+          <th>Date</th>
+          <th>Outcome</th>
+          <th>Location</th>
+        </thead>
+        <tbody>
+          <tr v-for="alarm in alarms" :key="alarm.timestamp">
+            <td>{{ alarm.timestamp }}</td>
+            <td>{{ alarm.outcome }}</td>
+            <td>{{ alarm.location.name }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div id="paginator">
+        <button
+          id="previous"
+          @click="previousPage()"
+          :disabled="this.pageInfo.page == 1"
+        >
+          Previous
+        </button>
+        <span>{{ pageInfo.page }}</span>
+        <button
+          id="next"
+          @click="nextPage()"
+          :disabled="this.pageInfo.page === last_page"
+        >
+          Next
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -23,16 +43,55 @@ import { fetchAlarms } from "./lib/datasource";
 
 export default {
   data() {
-    return { alarms: [], error: null };
+    return {
+      alarms: [],
+      pageInfo: {
+        page: 1,
+        total_count: 0,
+        page_size: 10,
+      },
+      loadingState: {
+        error: null,
+        isLoading: false,
+      },
+    };
   },
   async mounted() {
-    try {
-      let data = await fetchAlarms();
-      this.alarms = data.results;
-    } catch (err) {
-      console.log(err);
-      this.error = err.message;
-    }
+    this.load_alarms();
+  },
+  computed: {
+    last_page() {
+      return (
+        Math.floor(this.pageInfo.total_count / this.pageInfo.page_size) +
+        (this.pageInfo.total_count % this.pageInfo.page_size)
+      );
+    },
+  },
+  methods: {
+    nextPage() {
+      this.pageInfo.page++;
+      this.load_alarms();
+    },
+
+    previousPage() {
+      this.pageInfo.page--;
+      this.load_alarms();
+    },
+
+    async load_alarms() {
+      try {
+        this.loadingState.error = null; // clear error state
+        this.loadingState.isLoading = true;
+        let data = await fetchAlarms(this.pageInfo);
+        this.alarms = data.results;
+        this.pageInfo.total_count = data.count;
+      } catch (err) {
+        console.log(err);
+        this.loadingState.error = err.message;
+      } finally {
+        this.loadingState.isLoading = false;
+      }
+    },
   },
 };
 </script>
@@ -45,5 +104,9 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+#app span {
+  margin: 10px;
 }
 </style>
