@@ -1,5 +1,6 @@
 const express = require('express')
 const basicAuth = require('express-basic-auth')
+const cors = require('cors')
 const simpleLogger = require('express-file-logger')
 
 const DB = require('./db')
@@ -7,7 +8,7 @@ const paginator = require('./paginator')
 
 const app = express()
 
-simpleLogger(app,  {
+simpleLogger(app, {
     basePath: 'logs',
     fileName: 'access.log',
     showOnConsole: false // enable during development
@@ -16,6 +17,8 @@ simpleLogger(app,  {
 
 app.db = new DB()
 app.db.initSync('./data/sample.json')
+
+app.use(cors({ origin: /http:\/\/localhost:?[\d]*$/ })) // disable cors
 
 app.use(basicAuth({
     users: { 'admin': 's3cr3te' } // ideally should be set in an enviroment varialbe or looked up from the db
