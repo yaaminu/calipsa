@@ -1,7 +1,20 @@
 <template>
   <div>
     <p v-if="error">{{ error }}</p>
-    <p v-else>{{ JSON.stringify(alarms) }}</p>
+    <table v-else>
+      <thead>
+        <th>Date</th>
+        <th>Outcome</th>
+        <th>Location</th>
+      </thead>
+      <tbody>
+        <tr v-for="alarm in alarms" :key="alarm.timestamp">
+          <td>{{ alarm.timestamp }}</td>
+          <td>{{ alarm.outcome }}</td>
+          <td>{{ alarm.location.name }}</td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
@@ -14,10 +27,11 @@ export default {
   },
   async mounted() {
     try {
-      this.alarms = await fetchAlarms();
+      let data = await fetchAlarms();
+      this.alarms = data.results;
     } catch (err) {
-      console.log(err)
-      this.error = err.message
+      console.log(err);
+      this.error = err.message;
     }
   },
 };
