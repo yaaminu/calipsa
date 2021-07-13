@@ -1,5 +1,9 @@
+const fs = require('fs')
 const request = require('supertest')
 const app = require('../app')
+
+const data = JSON.parse(fs.readFileSync('./data/sample.json'))
+
 
 describe("Calipsa Take Home", () => {
     /**
@@ -12,8 +16,18 @@ describe("Calipsa Take Home", () => {
      * 7. log all requests to a file - won't test
      */
 
-    it('should work', async () => {
-        res = await request(app).get("/alarms/")
-        expect(res.body.hello).toBe('world')
+    describe("GET /alarms/", () => {
+        beforeAll(() => {
+            let sorted_alarms = data.alarms.sort((first, second) => new Date(first.timestamp) > new Date(second.timestamp))
+            alarms = sorted_alarms.map(entry => {
+                entry_location = data.locations.find(item => item.id == entry.location)
+                return { ...entry, location: entry_location }
+            })
+        })
+
+        it('should return all alarms', async () => {
+            res = await request(app).get("/alarms/")
+            expect(res.body.results).toEqual(alarms)
+        })
     })
 })
