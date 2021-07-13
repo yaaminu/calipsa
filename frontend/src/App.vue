@@ -11,7 +11,9 @@
         </thead>
         <tbody>
           <tr v-for="alarm in alarms" :key="alarm.timestamp">
-            <td>{{ alarm.timestamp }}</td>
+            <td>
+              <a href="#" @click="showAlarmDetails(alarm)">{{ alarm.timestamp }}</a>
+            </td>
             <td>{{ alarm.outcome }}</td>
             <td>{{ alarm.location.name }}</td>
           </tr>
@@ -40,6 +42,7 @@
 
 <script>
 import { fetchAlarms } from "./lib/datasource";
+import { sleep } from "./lib/utils";
 
 export default {
   data() {
@@ -78,11 +81,17 @@ export default {
       this.load_alarms();
     },
 
+    showAlarmDetails(alarm) {
+      //should be a separte page on its own
+      alert(JSON.stringify(alarm));
+    },
+
     async load_alarms() {
       try {
         this.loadingState.error = null; // clear error state
         this.loadingState.isLoading = true;
         let data = await fetchAlarms(this.pageInfo);
+        await sleep(0.5); //fake sleep to make progress visible
         this.alarms = data.results;
         this.pageInfo.total_count = data.count;
       } catch (err) {
@@ -106,7 +115,7 @@ export default {
   margin-top: 60px;
 }
 
-#app span {
+#paginator span {
   margin: 10px;
 }
 </style>
