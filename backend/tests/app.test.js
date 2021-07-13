@@ -10,8 +10,8 @@ describe("Calipsa Take Home", () => {
      * 1. list alerts should return all alerts *
      * 2. list alerts should paginate alerts by 10 by default *
      * 2. list alersts should return 400 when page query parameter is invalid
-     * 3. list alerts should paginate alerts by a configurable page size
-     * 4. list alerts should support filtering by a timesamp_range 
+     * 3. list alerts should paginate alerts by a configurable page size *
+     * 4. list alerts should support filtering by a timesamp_range *
      * 5. list alerts should support filtering by outcome
      * 6. list alerts should return 401 for all unauthorized requests
      * 7. log all requests to a file - won't test
@@ -49,6 +49,19 @@ describe("Calipsa Take Home", () => {
                 expect(res.body.results.length).toEqual(alarms.slice(start, start + page_size).length)
                 start += page_size
             } while (curr_page++ * page_size < total_alarms)
+        })
+
+        it('should filter alarms by timestamp_range query when present', async () => {
+            let start = Math.floor((Math.random() * alarms.length * 10) % alarms.length)
+            let end = Math.max(start + 35, alarms.length - 1)
+
+            let start_date = new Date(alarms[start].timestamp)
+            let end_date = new Date(alarms[end].timestamp)
+
+            let expected = alarms.filter(alarm => new Date(alarm.timestamp) >= start_date && new Date(alarm.timestamp) <= end_date)
+            // setting no_page to 1 makes the test more readable
+            let res = await request(app).get(`/alarms/?no_page=1&timestamp_range=${start_date.toISOString()},${end_date.toISOString()}`)
+            expect(res.body.results).toEqual(expected)           
         })
     })
 })

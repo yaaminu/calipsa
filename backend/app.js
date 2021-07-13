@@ -8,7 +8,12 @@ app.db.initSync('./data/sample.json')
 
 
 app.get('/alarms/', async (req, res) => {
-    let results = await app.db.listAlarms()
+    let timestamp_range
+    if (req.query.timestamp_range) {
+        timestamp_range = req.query.timestamp_range.split(",", 2)
+    }
+    let results = await app.db.listAlarms(timestamp_range)
+
     let page_config = {
         page: parseInt(req.query.page) || 1,
         page_size: parseInt(req.query.page_size) || 10,

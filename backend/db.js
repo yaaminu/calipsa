@@ -15,8 +15,18 @@ class DB {
             })
     }
 
-    async listAlarms() {
-        return this._data.alarms
+    async listAlarms(timestamp_range) {
+        let alarms = this._data.alarms
+        return new Promise(resolve => {
+            if (timestamp_range) {
+                let [start_date, end_date] = timestamp_range
+                alarms = alarms.filter(alarm => {
+                    let alarm_date = new Date(alarm.timestamp)
+                    return alarm_date >= new Date(start_date) && alarm_date <= new Date(end_date)
+                })
+            }
+            resolve(alarms)
+        })
     }
 
 }
