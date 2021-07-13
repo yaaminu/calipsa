@@ -15,7 +15,8 @@
     "supertest": "^6.1.3"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "express-basic-auth": "^1.2.0"
   },
   "jest": {
     "testEnvironment": "node",
