@@ -1,5 +1,5 @@
-const { query } = require('express')
 const express = require('express')
+const basicAuth = require('express-basic-auth')
 const DB = require('./db')
 const paginator = require('./paginator')
 
@@ -7,6 +7,9 @@ const app = express()
 app.db = new DB()
 app.db.initSync('./data/sample.json')
 
+app.use(basicAuth({
+    users: { 'admin': 's3cr3te' } // ideally should be set in an enviroment varialbe or looked up from the db
+}))
 
 app.get('/alarms/', async (req, res) => {
     let query = {}

@@ -24,18 +24,20 @@ describe("Calipsa Take Home", () => {
                 entry_location = data.locations.find(item => item.id == entry.location)
                 return { ...entry, location: entry_location }
             })
+
+            test_client = request.agent(app).auth("admin", "s3cr3te")
         })
 
         it('should return all alarms when no_page query is present', async () => {
-            let res = await request(app).get("/alarms/?no_page=1")
+            let res = await test_client.get("/alarms/?no_page=1")
             expect(res.body.results).toEqual(alarms)
         })
 
         it('should paginate alarms results by 10 entries by default', async () => {
-            let page1_res = await request(app).get("/alarms/")
+            let page1_res = await test_client.get("/alarms/")
             expect(page1_res.body.results).toEqual(alarms.slice(0, 10))
 
-            let page2_res = await request(app).get("/alarms/?page=2")
+            let page2_res = await test_client.get("/alarms/?page=2")
             expect(page2_res.body.results).toEqual(alarms.slice(10, 20))
         })
 
@@ -45,7 +47,7 @@ describe("Calipsa Take Home", () => {
             let total_alarms = alarms.length
             let start = 0
             do {
-                let res = await request(app).get(`/alarms/?page_size=${page_size}&page=${curr_page}`)
+                let res = await test_client.get(`/alarms/?page_size=${page_size}&page=${curr_page}`)
                 expect(res.body.results).toEqual(alarms.slice(start, start + page_size))
                 start += page_size
             } while (curr_page++ * page_size < total_alarms)
@@ -60,7 +62,7 @@ describe("Calipsa Take Home", () => {
 
             let expected = alarms.filter(alarm => new Date(alarm.timestamp) >= start_date && new Date(alarm.timestamp) <= end_date)
             // setting no_page to 1 makes the test more readable
-            let res = await request(app).get(`/alarms/?no_page=1&timestamp_range=${start_date.toISOString()},${end_date.toISOString()}`)
+            let res = await test_client.get(`/alarms/?no_page=1&timestamp_range=${start_date.toISOString()},${end_date.toISOString()}`)
             expect(res.body.results).toEqual(expected)
         })
 
@@ -68,11 +70,16 @@ describe("Calipsa Take Home", () => {
             let outcome_is_true = alarms.filter(alarm => alarm.outcome)
             let outcome_is_false = alarms.filter(alarm => !alarm.outcome)
 
-            true_res = await request(app).get("/alarms/?no_page=1&outcome=1")
+            true_res = await test_client.get("/alarms/?no_page=1&outcome=1")
             expect(true_res.body.results.length).toEqual(outcome_is_true.length)
 
-            false_res = await request(app).get("/alarms/?no_page=1&outcome=0")
+            false_res = await test_client.get("/alarms/?no_page=1&outcome=0")
             expect(false_res.body.results.length).toEqual(outcome_is_false.length)
+        })
+
+        it('should return 401 for unauthorized users', async () => {
+            let res = await request(app).get('/alarms/')
+            expect(res.status).toEqual(401)
         })
     })
 })
