@@ -15,7 +15,7 @@ class DB {
             })
     }
 
-    async listAlarms(timestamp_range) {
+    async listAlarms({ timestamp_range, outcome }) {
         let alarms = this._data.alarms
         return new Promise(resolve => {
             if (timestamp_range) {
@@ -25,6 +25,11 @@ class DB {
                     return alarm_date >= new Date(start_date) && alarm_date <= new Date(end_date)
                 })
             }
+
+            if (typeof outcome !== 'undefined') {
+                alarms = alarms.filter(alarm => alarm.outcome === outcome)
+            }
+
             resolve(alarms)
         })
     }

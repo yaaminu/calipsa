@@ -46,7 +46,7 @@ describe("Calipsa Take Home", () => {
             let start = 0
             do {
                 let res = await request(app).get(`/alarms/?page_size=${page_size}&page=${curr_page}`)
-                expect(res.body.results.length).toEqual(alarms.slice(start, start + page_size).length)
+                expect(res.body.results).toEqual(alarms.slice(start, start + page_size))
                 start += page_size
             } while (curr_page++ * page_size < total_alarms)
         })
@@ -61,7 +61,18 @@ describe("Calipsa Take Home", () => {
             let expected = alarms.filter(alarm => new Date(alarm.timestamp) >= start_date && new Date(alarm.timestamp) <= end_date)
             // setting no_page to 1 makes the test more readable
             let res = await request(app).get(`/alarms/?no_page=1&timestamp_range=${start_date.toISOString()},${end_date.toISOString()}`)
-            expect(res.body.results).toEqual(expected)           
+            expect(res.body.results).toEqual(expected)
+        })
+
+        it('should filter alarms by outcome query when present', async () => {
+            let outcome_is_true = alarms.filter(alarm => alarm.outcome)
+            let outcome_is_false = alarms.filter(alarm => !alarm.outcome)
+
+            true_res = await request(app).get("/alarms/?no_page=1&outcome=1")
+            expect(true_res.body.results.length).toEqual(outcome_is_true.length)
+
+            false_res = await request(app).get("/alarms/?no_page=1&outcome=0")
+            expect(false_res.body.results.length).toEqual(outcome_is_false.length)
         })
     })
 })
