@@ -1,6 +1,6 @@
 export async function fetchAlarms({ page = 1, page_size = 10 }) {
     let res = await fetch(`http://localhost:8000/alarms/?page=${page}&page_size=${page_size}`, {
-        headers: { 'Authorization': `Basic ${btoa("admin:s3cr3te")}` },
+        headers: { 'Authorization': `Basic ${btoa("admin:s3cr3te")}` }, // ideally, auth should be a user input
         method: 'GET'
     })
     if (res.status == 200) {
