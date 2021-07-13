@@ -16,7 +16,8 @@
   },
   "dependencies": {
     "express": "^4.17.1",
-    "express-basic-auth": "^1.2.0"
+    "express-basic-auth": "^1.2.0",
+    "express-file-logger": "^1.0.4"
   },
   "jest": {
     "testEnvironment": "node",
