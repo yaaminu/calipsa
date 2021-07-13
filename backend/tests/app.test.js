@@ -12,8 +12,8 @@ describe("Calipsa Take Home", () => {
      * 2. list alersts should return 400 when page query parameter is invalid
      * 3. list alerts should paginate alerts by a configurable page size *
      * 4. list alerts should support filtering by a timesamp_range *
-     * 5. list alerts should support filtering by outcome
-     * 6. list alerts should return 401 for all unauthorized requests
+     * 5. list alerts should support filtering by outcome * 
+     * 6. list alerts should return 401 for all unauthorized requests *
      * 7. log all requests to a file - won't test
      */
 
@@ -22,7 +22,7 @@ describe("Calipsa Take Home", () => {
             let sorted_alarms = data.alarms.sort((first, second) => new Date(first.timestamp) > new Date(second.timestamp))
             alarms = sorted_alarms.map(entry => {
                 entry_location = data.locations.find(item => item.id == entry.location)
-                return { ...entry, location: entry_location }
+                return { ...entry, location: { ...entry_location } }
             })
 
             test_client = request.agent(app).auth("admin", "s3cr3te")

@@ -1,9 +1,19 @@
 const express = require('express')
 const basicAuth = require('express-basic-auth')
+const simpleLogger = require('express-file-logger')
+
 const DB = require('./db')
 const paginator = require('./paginator')
 
 const app = express()
+
+simpleLogger(app,  {
+    basePath: 'logs',
+    fileName: 'access.log',
+    showOnConsole: false // enable during development
+})
+
+
 app.db = new DB()
 app.db.initSync('./data/sample.json')
 
