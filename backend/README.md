@@ -32,3 +32,9 @@ GET `/alarms/?outcome=0&page_size=25`.
 ```
 
 
+### What I would have added if not for time constraints
+- I would have used a real database and seed it with the test data and query the data from it
+- I would have implemented proper user input validation
+- I would have extracted the auth credentials into an environment variable
+- I would have configure the log files to rotate daily
+- I would have made the server port configurable 
